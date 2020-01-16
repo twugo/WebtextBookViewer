@@ -1,0 +1,2 @@
+# WebtextBookViewer
+Webページのテキストを取得して本のように表示するアプリ
