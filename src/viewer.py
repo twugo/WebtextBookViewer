@@ -12,13 +12,14 @@ from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
+from kivy.graphics import Color
+
+from kivy.uix.screenmanager import ScreenManager, Screen
 
 from kivy.lang.builder import Builder
 from kivy.core.window import Window
 
 Window.size = (1080, 720)
-
-h2StartMkup = "[size=25][b]" # 改ページ処理したい
 
 
 '''
@@ -30,24 +31,23 @@ page = 0
 '''
 
 class Book(EventDispatcher):
+    columnsize = 20
+
     page = NumericProperty()
-    maxPage = 0
-    
 
     def __init__(self, page):
-        #self.page=0
-        self.columnsize = 20
+        #self.page = 0
         with open("alice.txt", "r", encoding="UTF-8") as f:
             self.data = [v for v in f.readlines()]
-        self.maxPage = len(self.data) / self.columnsize
+        self.maxPage = len(self.data) / Book.columnsize
         print("maxPage:", self.maxPage)
 
     
     def lpageShow(self):
         #print("l" + str(self.page))
         tmp = ""
-        for i in range(self.columnsize):
-            nextColumn = i + self.columnsize*(self.page)
+        for i in range(Book.columnsize):
+            nextColumn = i + Book.columnsize*(self.page)
             if nextColumn < len(self.data):
                 tmp += self.data[nextColumn]
             else:
@@ -57,8 +57,8 @@ class Book(EventDispatcher):
     def rpageShow(self):
         #print("r" + str(self.page))
         tmp = ""
-        for i in range(self.columnsize):
-            nextColumn = i + self.columnsize*(self.page+1)
+        for i in range(Book.columnsize):
+            nextColumn = i + Book.columnsize*(self.page+1)
             if nextColumn < len(self.data):
                 tmp += self.data[nextColumn]
             else:
@@ -67,7 +67,7 @@ class Book(EventDispatcher):
         return tmp
     
 
-class MainScreen(FloatLayout):
+class ReadScreen(Screen):
 
     def cb_lTextBtn(self, book, rTextBtn, slider, lPageLabel, rPageLabel, lTextBtn):
         if book.page > 0:
@@ -89,8 +89,6 @@ class MainScreen(FloatLayout):
 
     def cb_bookmarkBtn(self, book, button):
         file = 'bookmark.txt'
-        if os.path.exists(file):
-            os.remove(file)
         with open(file, "w", encoding="UTF-8") as f:
             print(book.page, file=f)
     
@@ -106,23 +104,6 @@ class MainScreen(FloatLayout):
         super().__init__(**kwargs)
 
 
-        '''
-        #Button(text="hello")
-        #self.add_widget(btn)
-        layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
-        # Make sure the height is such that there is something to scroll.
-        layout.bind(minimum_height=layout.setter('height'))
-        #txt = open("alice.txt", "r", encoding="UTF-8")
-        #for line in txt.read():
-        btn = Button(text=lines[0], size_hint_y=None, height=40)
-        layout.add_widget(btn)
-        scr = ScrollView(do_scroll_x=False, do_scroll_y=True)
-        self.add_widget(scr)
-        lbl = Label(text=lines)
-        scr.add_widget(lbl)
-        
-        #txt.close()  
-        '''
         fontsize = 20
         columnsize = 20
 
@@ -133,8 +114,8 @@ class MainScreen(FloatLayout):
         floatLayout = Factory.FloatLayout()
 
         #左ページ
-        lTextBtn = Factory.Button(text=book.lpageShow(), font_size=fontsize, markup=True,
-                                    background_color=[0,.25,.25,1])
+        lTextBtn = Factory.Button(text=book.lpageShow(), font_size=fontsize, markup=True, color=[1, 1, 1, 1], #f0f8ff
+                                    background_color=[.1,.3,.2,1])
 
         lPageLabel = Label(text="0", font_size=fontsize, size_hint=(.1, .1), pos_hint={'x':.2, 'y':.1})
         floatLayout.add_widget(lPageLabel)
@@ -145,8 +126,8 @@ class MainScreen(FloatLayout):
         '''
 
         #右ページ
-        rTextBtn = Factory.Button(text=book.rpageShow(), font_size=fontsize, markup=True,
-                                    background_color=[0,.25,.25,1])
+        rTextBtn = Factory.Button(text=book.rpageShow(), font_size=fontsize, markup=True, color=[1, 1, 1, 1],
+                                    background_color=[.1,.3,.2,1])
 
         rPageLabel = Label(text="1", font_size=fontsize, size_hint=(.1, .1), pos_hint={'x':.7, 'y':.1})
         floatLayout.add_widget(rPageLabel)
@@ -178,7 +159,6 @@ class MainScreen(FloatLayout):
         floatLayout.add_widget(openBtn)
 
 
-
         lTextBtn.fbind('on_press', self.cb_lTextBtn, book, rTextBtn, slider, lPageLabel, rPageLabel)
         pageLayout.add_widget(lTextBtn)
         rTextBtn.fbind('on_press', self.cb_rTextBtn, book, lTextBtn, slider, lPageLabel, rPageLabel)
@@ -192,8 +172,9 @@ class MainScreen(FloatLayout):
 
 class MainApp(App):
     def build(self):
-        MS = MainScreen()
-        return MS
+        sm = ScreenManager()
+        sm.add_widget(ReadScreen(name='read'))
+        return sm
 
 if __name__ == "__main__":
     MainApp().run()

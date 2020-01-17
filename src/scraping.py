@@ -12,9 +12,10 @@ h1StartMkup = "[size=30][b][i][color=#dd2fc0]"
 h1EndMkup = "[/color][/b][/i][/size]"
 h2StartMkup = "[size=25][b][i][color=#c0dd2f]"
 h2EndMkup = "[/color][/b][/i][/size]"
+"""
 preStartMkup = "[i]"
 preEndMkup = "[/i]"
-
+"""
 
 target_url = 'https://www.gutenberg.org/files/11/11-h/11-h.htm' # 不思議な国のアリス
 #target_url = 'https://www.gutenberg.org/files/1513/1513-h/1513-h.htm' # ロミオとジュリエット
@@ -37,12 +38,12 @@ for tag in soup.find_all("h1"):
 for tag in soup.find_all("h2"):
     tag.insert(0, h2StartMkup)
     tag.append(h2EndMkup)
-
+"""
 for tag in soup.find_all("pre"):
     #tag.insert(0, preStartMkup)
     #tag.append(preEndMkup)
     tag.string = preStartMkup + tag.getText() + preEndMkup
-
+"""
 # ファイル書き込み
 textStartFlag = 0
 with open(filename, "w", encoding="UTF-8") as f:
